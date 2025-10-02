@@ -6,12 +6,31 @@ import * as THREE from "three";
 
 const Sphere = () => {
   // const meshRef = useRef();
-  const meshRef = useRef(null);
+  const meshRef = useRef<THREE.mesh>(null);
+  const velocityRef = useRef(0); // Track falling speed
+
+useFrame( (state, delta) => {
+  if(meshRef.current) {
+
+      velocityRef.current += -15* delta;
+
+      meshRef.current.position.y += velocityRef.current * delta;
+
+      if(meshRef.current.position.y <= -5) {
+        velocityRef.current = 20;
+        meshRef.current.position.y += velocityRef.current * delta;
+
+      }
+  }
+});
+
   return (
     // <mesh position={[0, 0, -10]}>
     <mesh ref={meshRef}>
       {/* <sphereBufferGeometry args={[5, 24, 24]} /> */}
       <sphereGeometry args={[5, 24, 24]} />
+      {/* <cylinderGeometry args={[1,1,1]} /> */}
+      <meshPhongMaterial color={"orange"} emissive={"orange"} />
       <meshStandardMaterial color={"orange"} />
     </mesh>
   );
