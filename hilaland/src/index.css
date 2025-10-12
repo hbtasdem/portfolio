@@ -1,0 +1,22 @@
+/* main */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&display=swap');  
+/* secondary */
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Work+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-orbitron: 'Orbitron', sans-serif;
+  --font-work: 'Work Sans', sans-serif;
+  --font-sans: 'Work Sans', sans-serif;
+}
+
+/* Reset some defaults */
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
