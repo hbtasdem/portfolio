@@ -1,7 +1,56 @@
 import { useRef, useState } from "react";
-import { OrbitControls } from "@react-three/drei";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { CameraControls, OrbitControls } from "@react-three/drei";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
+
+const CameraCtrl = ({ shouldZoom }: { shouldZoom: boolean }) => {
+
+  const {camera} = useThree() // get access to the camera
+  const zoomStart = useRef(false);
+  const camStart = useRef(new THREE.Vector3());
+  const animProg = useRef(0);
+
+  const camTarget = new THREE.Vector3(0, -2, 7);
+  const zoomTimer = 3;
+ 
+ // animate the frames
+  useFrame((_, delta) => {
+    if(shouldZoom && !zoomStart.current) { // check if we should start zooming
+      camStart.current.copy(camera.position); // save the current camera position to your startPosition ref
+      zoomStart.current = true;
+    }
+    
+    if(zoomStart.current && animProg.current < 1) { // if zoom has started and progress < 1
+      // zoom animation
+      animProg.current += delta/zoomTimer; // increment progress by (delta / duration)
+      animProg.current = Math.min(animProg.current, 1);
+
+      // smooth easing (ease-in-out)
+      const eased = animProg.current < 0.5
+        ? 2 * animProg.current * animProg.current
+        : 1 - Math.pow(-2 * animProg.current + 2, 2) / 2;
+
+      camera.position.lerpVectors(camStart.current, camTarget, eased);
+      camera.lookAt(0, -1, 0);
+    }
+    
+  });
+  
+  return null; // This component doesn't render anything visible
+};
+
+
+
+// Step 8: Disable OrbitControls during zoom
+// Add enabled={!shouldZoom} prop to OrbitControls
+// This prevents user from interfering with the animation
+
+// TESTING TIPS:
+// - console.log(progress.current) to see animation progress
+// - Start with a short duration (1 second) to test faster
+// - console.log(camera.position) to see current camera location
+// - Try different target positions to find what looks best
+
 
 const Sphere = ({ onSettle }: { onSettle: () => void }) => {
   const meshRef = useRef<THREE.Mesh>(null);
@@ -39,11 +88,6 @@ const Sphere = ({ onSettle }: { onSettle: () => void }) => {
       }
     }
   });
-    // if (hasSettledRef.current) {
-    //   const rotate = -10;
-
-    // }
-
 
   return (
     <mesh ref={meshRef} position={[0, 10, 0]}>
@@ -82,14 +126,23 @@ const NameReveal = ({ show }: { show: boolean }) => {
 
 const App = () => {
   const [showName, setShowName] = useState(false);
+  const [shouldZoom, setShouldZoom] = useState(false);
+  const [shouldRotate, setShouldRotate] = useState(false); // Add this
 
-
+  const handleSettle = () => {
+    setShowName(true);
+    setShouldRotate(true);
+    setTimeout(() => {
+      setShouldZoom(true);
+    }, 2000);
+  };
+  
   return (
     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
 
       <Canvas
         // camera={{ position: [0, 0, 15] }}
-        camera={{ position: [5, 0, 15] }}
+        camera={{ position: [0, 0, 20], fov: 50 }}
 
         style={{
           height: "100vh",
@@ -104,9 +157,14 @@ const App = () => {
           enablePan={true}
           enableDamping={true}
           enableRotate={true}
-          autoRotate={true}
+          autoRotate={shouldRotate}
           autoRotateSpeed={5}
+          // enabled={!shouldZoom}
+          enabled={true}
+
         />
+
+        <CameraCtrl shouldZoom={shouldZoom} />
 
         {/* Lighting */}
         <ambientLight intensity={0.5} />
@@ -118,10 +176,13 @@ const App = () => {
         <pointLight position={[-10, 0, -5]} intensity={1.5} color="#FFB7D5" />
         <pointLight position={[0, -10, 0]} intensity={1} color="#FFF8E1" />
 
+
+
         {/* Background */}
         <color attach="background" args={["#FFF3C7"]} />
 
-        <Sphere onSettle={() => setShowName(true)} />
+        <Sphere onSettle={handleSettle} />
+        {/* <Sphere onSettle={() => setShowName(true)} /> */}
 
         {/* Ground plane for reference */}
         {/* <mesh position={[0, -50, 0]} rotation={[-Math.PI / 2, 0, 0]}> */}
