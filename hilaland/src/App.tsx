@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
 import { CameraControls, OrbitControls } from "@react-three/drei";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
+import { Canvas, events, useFrame, useThree } from "@react-three/fiber";
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import * as THREE from "three";
 
 const CameraCtrl = ({ shouldZoom }: { shouldZoom: boolean }) => {
@@ -12,11 +13,15 @@ const CameraCtrl = ({ shouldZoom }: { shouldZoom: boolean }) => {
 
   const camTarget = new THREE.Vector3(0, -2, 7);
   const zoomTimer = 3;
+
+  const lookAtStart = useRef(new THREE.Vector3());
+  const lookAtTarget = new THREE.Vector3(0, -1, 0); //change this for the final position
  
  // animate the frames
   useFrame((_, delta) => {
     if(shouldZoom && !zoomStart.current) { // check if we should start zooming
       camStart.current.copy(camera.position); // save the current camera position to your startPosition ref
+      lookAtStart.current.set(0, 0, 0); 
       zoomStart.current = true;
     }
     
@@ -31,25 +36,18 @@ const CameraCtrl = ({ shouldZoom }: { shouldZoom: boolean }) => {
         : 1 - Math.pow(-2 * animProg.current + 2, 2) / 2;
 
       camera.position.lerpVectors(camStart.current, camTarget, eased);
-      camera.lookAt(0, -1, 0);
+
+
+      const currentLookAt = new THREE.Vector3();
+      currentLookAt.lerpVectors(lookAtStart.current, lookAtTarget, eased);
+      camera.lookAt(currentLookAt);
+
     }
     
   });
   
   return null; // This component doesn't render anything visible
 };
-
-
-
-// Step 8: Disable OrbitControls during zoom
-// Add enabled={!shouldZoom} prop to OrbitControls
-// This prevents user from interfering with the animation
-
-// TESTING TIPS:
-// - console.log(progress.current) to see animation progress
-// - Start with a short duration (1 second) to test faster
-// - console.log(camera.position) to see current camera location
-// - Try different target positions to find what looks best
 
 
 const Sphere = ({ onSettle }: { onSettle: () => void }) => {
@@ -119,9 +117,25 @@ const NameReveal = ({ show }: { show: boolean }) => {
     </div>
   );
 };
+// const loader = new GLTFLoader();
+// document.addEventListener("click", (event) => {
+//   let mouse = new THREE.Vector2();
+//   const {camera} = useThree()
+//   mouse.set(
+//     (event.clientX / window.innerWidth) * 2 -1,
+//     ((window.innerHeight - event.clientY) / window.innerHeight) * 2 - 1); 
 
-// const PlanetRotator = ({rotater}: {rotater: boolean}) => {
+//     const rayCaster = new THREE.Raycaster();
+//     rayCaster.setFromCamera(mouse, camera);
 
+//     const dir = rayCaster.ray.direction;
+//     const pointClick = rayCaster.ray.origin.add(dir.multiplyScalar(4));
+//     createButton(pointClick)
+// })
+
+// const createButton = (pointClick) => {
+//   let button;
+  
 // }
 
 const App = () => {
@@ -157,10 +171,10 @@ const App = () => {
           enablePan={true}
           enableDamping={true}
           enableRotate={true}
-          autoRotate={shouldRotate}
+          autoRotate={!shouldZoom}
           autoRotateSpeed={5}
-          // enabled={!shouldZoom}
-          enabled={true}
+          enabled={!shouldZoom}
+          // enabled={true}
 
         />
 
