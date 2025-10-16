@@ -33,7 +33,7 @@ const Planet = ({
       {/* Orbit path visualization (optional) */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[orbitRadius - 0.05, orbitRadius + 0.05, 64]} />
-        <meshBasicMaterial color="#ffffff" opacity={0.2} transparent />
+        <meshBasicMaterial color="#00d9ff" opacity={0.3} transparent />
       </mesh>
 
       {/* The planet itself */}
@@ -44,13 +44,13 @@ const Planet = ({
           onPointerOut={() => setHovered(false)}
           scale={hovered ? 1.2 : 1}
         >
-          <sphereGeometry args={[planetSize, 32, 32]} />
+          <sphereGeometry args={[planetSize, 24, 24]} />
           <meshStandardMaterial 
             color={planetColor}
             emissive={hovered ? planetColor : "#000000"}
-            emissiveIntensity={hovered ? 0.5 : 0}
-            metalness={0.4}
-            roughness={0.6}
+            emissiveIntensity={hovered ? 0.8 : 0.2}
+            metalness={0.6}
+            roughness={0.2}
           />
         </mesh>
 
@@ -59,7 +59,7 @@ const Planet = ({
           <Text
             position={[0, planetSize + 0.5, 0]}
             fontSize={0.3}
-            color="#F72585"
+            color="#00d9ff"
             anchorX="center"
             anchorY="middle"
           >
@@ -71,7 +71,7 @@ const Planet = ({
   );
 };
 
-const SolarSystem = ({ show }: { show: boolean }) => {
+const SolarSystem = ({ show, onPlanetClick }: { show: boolean, onPlanetClick: (planetId: string) => void }) => {
   const [activePlanet, setActivePlanet] = useState<string | null>(null);
 
   if (!show) return null;
@@ -81,25 +81,25 @@ const SolarSystem = ({ show }: { show: boolean }) => {
       id: "about",
       label: "About Me",
       orbitRadius: 8,
-      orbitSpeed: 0.3,
+      orbitSpeed: -1.3,
       planetSize: 1,
-      planetColor: "#4A90E2"
+      planetColor: "#8e3ec2"
     },
     {
       id: "projects",
       label: "Projects",
       orbitRadius: 12,
-      orbitSpeed: 0.2,
+      orbitSpeed: -1.2,
       planetSize: 1.2,
-      planetColor: "#E24A90"
+      planetColor: "#00d9ff"
     },
     {
       id: "contact",
       label: "Contact",
       orbitRadius: 16,
-      orbitSpeed: 0.15,
+      orbitSpeed: -1,
       planetSize: 0.8,
-      planetColor: "#90E24A"
+      planetColor: "#f72585"
     }
   ];
 
@@ -116,6 +116,7 @@ const SolarSystem = ({ show }: { show: boolean }) => {
           onClick={() => {
             console.log(`Clicked ${planet.label}`);
             setActivePlanet(planet.id);
+            onPlanetClick(planet.id);
           }}
         />
       ))}
@@ -125,7 +126,7 @@ const SolarSystem = ({ show }: { show: boolean }) => {
         <Text
           position={[0, 8, 0]}
           fontSize={0.5}
-          color="#F72585"
+          color="#00d9ff"
         >
           {activePlanet.toUpperCase()}
         </Text>
@@ -205,8 +206,14 @@ const Sphere = ({ onSettle }: { onSettle: () => void }) => {
 
   return (
     <mesh ref={meshRef} position={[0, 10, 0]}>
-      <sphereGeometry args={[4, 32, 32]} />
-      <meshStandardMaterial color="#FF87B2" metalness={0.5} roughness={0.35} />
+      <sphereGeometry args={[4, 24, 24]} />
+      <meshStandardMaterial 
+        color="#5b6cd5" 
+        metalness={0.8} 
+        roughness={0.2} 
+        emissive="#5b6cd5" 
+        emissiveIntensity={0.3} 
+      />
     </mesh>
   );
 };
@@ -221,11 +228,11 @@ const NameReveal = ({ show }: { show: boolean }) => {
         ${show ? 'opacity-100' : 'opacity-0'}
       `}
     >
-      <h1 className="font-orbitron text-6xl font-bold text-[#F72585] m-0 drop-shadow-md">
+      <h1 className="font-orbitron text-6xl font-bold text-[#00d9ff] m-0 drop-shadow-[0_0_20px_rgba(0,217,255,0.8)]">
         Welcome to HilaLand
       </h1>
-      <p className="font-work text-4xl font-semibold text-[#680431] mt-6">
-        Mayor: Hilal B Tasdemir
+      <p className="font-work text-4xl font-semibold text-[#9d4edd] mt-6 drop-shadow-[0_0_15px_rgba(157,78,221,0.6)]">
+        {/* Mayor: Hilal B Tasdemir */}
       </p>
     </div>
   );
@@ -236,6 +243,7 @@ const App = () => {
   const [shouldZoom, setShouldZoom] = useState(false);
   const [shouldRotate, setShouldRotate] = useState(false); 
   const [showPlanets, setShowPlanets] = useState(false);
+  const [currentView, setCurrentView] = useState<'solar' | 'about' | 'projects' | 'contact'>('solar');
 
   const handleSettle = () => {
     setShowName(true);
@@ -245,7 +253,7 @@ const App = () => {
       setShouldRotate(false);
     }, 2000);
     setTimeout(() => {
-      setShowPlanets(true); // Show orbiting planets
+      setShowPlanets(true);
       setShouldRotate(true);
     }, 5500);
   };
@@ -266,221 +274,244 @@ const App = () => {
           enableZoom={false}
           enablePan={false}
           enableDamping={true}
+          dampingFactor={0.05}
           enableRotate={false}
           autoRotate={shouldRotate}
           autoRotateSpeed={3}
           target={[0, -1, 0]}
-          enabled={true}
+          enabled={currentView === 'solar'}
         />
 
         <CameraCtrl shouldZoom={shouldZoom} />
 
-        {/* Lighting */}
-        <ambientLight intensity={0.5} />
+        {/* Lighting - cyberpunk vibes */}
+        <ambientLight intensity={0.3} color="#0a0e27" />
         <directionalLight
           position={[10, 10, 5]}
-          intensity={2.5}
-          color="#ffffff"
+          intensity={1.5}
+          color="#00d9ff"
         />
-        <pointLight position={[-10, 0, -5]} intensity={1.5} color="#FFB7D5" />
-        <pointLight position={[0, -10, 0]} intensity={1} color="#FFF8E1" />
+        <pointLight position={[-10, 0, -5]} intensity={2} color="#9d4edd" />
+        <pointLight position={[10, -5, 5]} intensity={1.5} color="#f72585" />
+        <pointLight position={[0, -10, 0]} intensity={1} color="#7209b7" />
 
-        {/* Background */}
-        <color attach="background" args={["#FFF3C7"]} />
+        {/* Dark cyberpunk background */}
+        <color attach="background" args={["#0a0e27"]} />
 
-        <Sphere onSettle={handleSettle} />
+        {currentView === 'solar' && <Sphere onSettle={handleSettle} />}
         
         {/* Ground plane */}
         <mesh position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
           <planeGeometry args={[50, 50]} />
-          <meshStandardMaterial color="#FFF3C7" opacity={0} transparent />
+          <meshStandardMaterial color="#0a0e27" opacity={0} transparent />
         </mesh>
 
-        {/* Houses appear after zoom */}
-      <SolarSystem show={showPlanets} />
+        <SolarSystem show={showPlanets && currentView === 'solar'} onPlanetClick={(planetId) => {
+          setCurrentView(planetId as 'about' | 'projects' | 'contact');
+        }} />
       </Canvas>
 
-      <NameReveal show={showName} />
+      <NameReveal show={showName && currentView === 'solar'} />
+
+      {/* About Me Page */}
+      {currentView === 'about' && (
+        <div className="absolute inset-0 bg-[#0a0e27]/95 backdrop-blur-sm flex items-center justify-center p-8 animate-fadeIn">
+          <div className="max-w-4xl w-full bg-gradient-to-br from-[#7209b7]/20 to-[#0a0e27]/40 backdrop-blur-md rounded-2xl p-12 border border-[#7209b7]/30 shadow-[0_0_50px_rgba(114,9,183,0.3)]">
+            {/* Back button */}
+            <button
+              onClick={() => setCurrentView('solar')}
+              className="mb-8 px-6 py-3 bg-[#7209b7] text-white rounded-lg hover:bg-[#9d4edd] transition-all duration-300 hover:shadow-[0_0_20px_rgba(114,9,183,0.6)] font-work"
+            >
+              ← Back to Solar System
+            </button>
+
+            {/* Content */}
+            <h2 className="font-orbitron text-5xl font-bold text-[#00d9ff] mb-6 drop-shadow-[0_0_20px_rgba(0,217,255,0.8)]">
+              About Me
+            </h2>
+            
+            <div className="space-y-6 text-white/90 font-work text-lg leading-relaxed">
+              <p>
+                Welcome to my corner of the digital universe! I'm Hilal B Tasdemir, 
+                a passionate developer and creator who loves building immersive experiences.
+              </p>
+              
+              <p>
+                I specialize in web development, 3D graphics, and interactive design. 
+                My mission is to blend creativity with technology to craft experiences 
+                that are both beautiful and functional.
+              </p>
+
+              <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-[#7209b7]/20 p-6 rounded-lg border border-[#7209b7]/30">
+                  <h3 className="text-[#9d4edd] font-bold text-xl mb-3 font-orbitron">Skills</h3>
+                  <ul className="space-y-2 text-white/80">
+                    <li>• React & Three.js</li>
+                    <li>• TypeScript</li>
+                    <li>• 3D Web Graphics</li>
+                    <li>• UI/UX Design</li>
+                  </ul>
+                </div>
+
+                <div className="bg-[#7209b7]/20 p-6 rounded-lg border border-[#7209b7]/30">
+                  <h3 className="text-[#9d4edd] font-bold text-xl mb-3 font-orbitron">Interests</h3>
+                  <ul className="space-y-2 text-white/80">
+                    <li>• Creative Coding</li>
+                    <li>• Space & Astronomy</li>
+                    <li>• Generative Art</li>
+                    <li>• Game Development</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default App;
+
 // import { useRef, useState } from "react";
-// import { CameraControls, OrbitControls, Text } from "@react-three/drei";
-// import { Canvas, events, useFrame, useThree } from "@react-three/fiber";
+// import { OrbitControls, Text } from "@react-three/drei";
+// import { Canvas, useFrame, useThree } from "@react-three/fiber";
 // import * as THREE from "three";
 
-// // const Button3D = ({
-// //   position, text, url
-// // }: {
-// //   position: [number, number, number],
-// //   text: string,
-// //   url: string
-// // }) => {
-// //   const [hover, setHover] = useState(false);
-
-// //   const handleClick = () => {
-// //     window.open(url, '_blank'); // opens project in a new tab
-// //   };
-
-// //   return (
-// //     <group position={position}>
-// //     <mesh
-// //       onClick = {handleClick}
-// //       onPointerOver = {() => setHover(true)}
-// //       onPointerOut = {() => setHover(false)}
-// //       scale = {hover ? 1.1 : 1}
-// //       > 
-
-// //       <boxGeometry args = {[2, 0.5, 0.2]} />
-// //       <meshStandardMaterial
-// //         color = {hover ? "#b25e7c" : "#ff87b2"}
-// //         metalness = {0.2}
-// //         roughness = {0.5}
-// //       />
-// //     </mesh>
-
-// //     <Text
-// //       position={[0, 0, 0.11]}  
-// //       fontSize={0.3}
-// //       color={"white"}
-// //       anchorX={"center"}
-// //       anchorY={"middle"}
-// //     >
-// //       {text}
-// //     </Text>
-// //     </group>
-// //   );
-// // };
-// const House = ({ 
-//   position, 
-//   rotation,
+// const Planet = ({
+//   orbitRadius,
+//   orbitSpeed,
+//   planetSize,
+//   planetColor,
 //   label,
-//   onClick 
-// }: { 
-//   position: [number, number, number], 
-//   rotation: [number, number, number],
+//   onClick
+// }: {
+//   orbitRadius: number,
+//   orbitSpeed: number,
+//   planetSize: number,
+//   planetColor: string,
 //   label: string,
-//   onClick: () => void 
+//   onClick: () => void
 // }) => {
+//   const groupRef = useRef<THREE.Group>(null);
 //   const [hovered, setHovered] = useState(false);
 
+//   // Orbit animation
+//   useFrame((_, delta) => {
+//     if (groupRef.current) {
+//       groupRef.current.rotation.y += delta * orbitSpeed;
+//     }
+//   });
+
 //   return (
-//     <group position={position} rotation={rotation}>
-//       {/* Simple house shape */}
-//       <mesh
-//         onClick={onClick}
-//         onPointerOver={() => setHovered(true)}
-//         onPointerOut={() => setHovered(false)}
-//         scale={hovered ? 1.1 : 1}
-//       >
-//         {/* House body */}
-//         <boxGeometry args={[0.5, 0.5, 0.5]} />
-//         <meshStandardMaterial 
-//           color={hovered ? "#FFD700" : "#8B4513"} 
-//           emissive={hovered ? "#FF6B9D" : "#000000"}
-//           emissiveIntensity={hovered ? 0.5 : 0}
-//         />
-//       </mesh>
-      
-//       {/* Roof - positioned above the body */}
-//       <mesh position={[0, 0.4, 0]}>
-//         <coneGeometry args={[0.4, 0.3, 4]} />
-//         <meshStandardMaterial color="#DC143C" />
+//     <group ref={groupRef}>
+//       {/* Orbit path visualization (optional) */}
+//       <mesh rotation={[-Math.PI / 2, 0, 0]}>
+//         <ringGeometry args={[orbitRadius - 0.05, orbitRadius + 0.05, 64]} />
+//         <meshBasicMaterial color="#00d9ff" opacity={0.3} transparent />
 //       </mesh>
 
-//       {/* Label that floats above house */}
-//       {hovered && (
-//         <Text
-//           position={[0, 1, 0]}
-//           fontSize={0.15}
-//           color="#F72585"
-//           anchorX="center"
-//           anchorY="middle"
+//       {/* The planet itself */}
+//       <group position={[orbitRadius, 0, 0]}>
+//         <mesh
+//           onClick={onClick}
+//           onPointerOver={() => setHovered(true)}
+//           onPointerOut={() => setHovered(false)}
+//           scale={hovered ? 1.2 : 1}
 //         >
-//           {label}
-//         </Text>
-//       )}
+//           <sphereGeometry args={[planetSize, 32, 32]} />
+//           <meshStandardMaterial 
+//             color={planetColor}
+//             emissive={hovered ? planetColor : "#000000"}
+//             emissiveIntensity={hovered ? 0.8 : 0.2}
+//             metalness={0.6}
+//             roughness={0.2}
+//           />
+//         </mesh>
+
+//         {/* Label */}
+//         {hovered && (
+//           <Text
+//             position={[0, planetSize + 0.5, 0]}
+//             fontSize={0.3}
+//             color="#00d9ff"
+//             anchorX="center"
+//             anchorY="middle"
+//           >
+//             {label}
+//           </Text>
+//         )}
+//       </group>
 //     </group>
 //   );
 // };
 
-// const Houses = ({ show }: { show: boolean }) => {
-//   const [activeHouse, setActiveHouse] = useState<string | null>(null);
+// const SolarSystem = ({ show }: { show: boolean }) => {
+//   const [activePlanet, setActivePlanet] = useState<string | null>(null);
 
 //   if (!show) return null;
 
-//   // Houses positioned around the planet
-//   const houses = [
-//     { 
-//       label: "About Me", 
-//       position: [0, -3.5, 3] as [number, number, number],
-//       rotation: [0, 0, 0] as [number, number, number],
-//       id: "about"
+//   const planets = [
+//     {
+//       id: "about",
+//       label: "About Me",
+//       orbitRadius: 8,
+//       orbitSpeed: -0.8,
+//       planetSize: 1,
+//       planetColor: "#8e3ec2"
 //     },
-//     { 
-//       label: "Projects", 
-//       position: [3, -3.5, 0] as [number, number, number],
-//       rotation: [0, Math.PI / 2, 0] as [number, number, number],
-//       id: "projects"
+//     {
+//       id: "projects",
+//       label: "Projects",
+//       orbitRadius: 12,
+//       orbitSpeed: -0.7,
+//       planetSize: 1.2,
+//       planetColor: "#00d9ff"
 //     },
-//     { 
-//       label: "Contact", 
-//       position: [-3, -3.5, 0] as [number, number, number],
-//       rotation: [0, -Math.PI / 2, 0] as [number, number, number],
-//       id: "contact"
-//     },
+//     {
+//       id: "contact",
+//       label: "Contact",
+//       orbitRadius: 16,
+//       orbitSpeed: -0.5,
+//       planetSize: 0.8,
+//       planetColor: "#f72585"
+//     }
 //   ];
 
 //   return (
 //     <>
-//       {houses.map((house) => (
-//         <House
-//           key={house.id}
-//           position={house.position}
-//           rotation={house.rotation}
-//           label={house.label}
-//           onClick={() => setActiveHouse(house.id)}
+//       {planets.map((planet) => (
+//         <Planet
+//           key={planet.id}
+//           orbitRadius={planet.orbitRadius}
+//           orbitSpeed={planet.orbitSpeed}
+//           planetSize={planet.planetSize}
+//           planetColor={planet.planetColor}
+//           label={planet.label}
+//           onClick={() => {
+//             console.log(`Clicked ${planet.label}`);
+//             setActivePlanet(planet.id);
+//             onPlanetClick(planet.id);
+//           }}
 //         />
 //       ))}
-      
-//       {/* Render house interior based on activeHouse
-//       {activeHouse === "about" && <AboutHouseInterior onExit={() => setActiveHouse(null)} />}
-//       {activeHouse === "projects" && <ProjectsHouseInterior onExit={() => setActiveHouse(null)} />}
-//       {activeHouse === "contact" && <ContactHouseInterior onExit={() => setActiveHouse(null)} />} */}
+
+//       {/* Temporary - show what was clicked */}
+//       {activePlanet && (
+//         <Text
+//           position={[0, 8, 0]}
+//           fontSize={0.5}
+//           color="#00d9ff"
+//         >
+//           {activePlanet.toUpperCase()}
+//         </Text>
+//       )}
 //     </>
 //   );
 // };
 
-// // const ButtonContainer = ({ show } : { show: boolean }) => {
-// //   if(!show)
-// //     return null;
-
-// //   const projects = [
-// //     { text: "Project 1", url: "https://github.com/yourproject1", position: [5, -2, 0] as [number, number, number] },
-// //     { text: "Project 2", url: "https://github.com/yourproject2", position: [0, 0, 0] as [number, number, number] },
-// //     { text: "Project 3", url: "https://github.com/yourproject3", position: [-5, -2, 0] as [number, number, number] },
-// //   ];
-
-// //   return (
-// //     <>
-// //       {projects.map((project, i) => (
-// //         <Button3D
-// //           key={i}
-// //           position={project.position}
-// //           text={project.text}
-// //           url={project.url}
-// //           />
-// //       ))}
-// //     </>
-// //   );
-// // };
-
-
 // const CameraCtrl = ({ shouldZoom }: { shouldZoom: boolean }) => {
-
-//   const {camera} = useThree() // get access to the camera
+//   const {camera} = useThree();
 //   const zoomStart = useRef(false);
 //   const camStart = useRef(new THREE.Vector3());
 //   const animProg = useRef(0);
@@ -489,40 +520,33 @@ export default App;
 //   const zoomTimer = 3;
 
 //   const lookAtStart = useRef(new THREE.Vector3());
-//   const lookAtTarget = new THREE.Vector3(0, -1, 0); //change this for the final position
+//   const lookAtTarget = new THREE.Vector3(0, -1, 0);
  
-//  // animate the frames
 //   useFrame((_, delta) => {
-//     if(shouldZoom && !zoomStart.current) { // check if we should start zooming
-//       camStart.current.copy(camera.position); // save the current camera position to your startPosition ref
+//     if(shouldZoom && !zoomStart.current) {
+//       camStart.current.copy(camera.position);
 //       lookAtStart.current.set(0, 0, 0); 
 //       zoomStart.current = true;
 //     }
     
-//     if(zoomStart.current && animProg.current < 1) { // if zoom has started and progress < 1
-//       // zoom animation
-//       animProg.current += delta/zoomTimer; // increment progress by (delta / duration)
+//     if(zoomStart.current && animProg.current < 1) {
+//       animProg.current += delta/zoomTimer;
 //       animProg.current = Math.min(animProg.current, 1);
 
-//       // smooth easing (ease-in-out)
 //       const eased = animProg.current < 0.5
 //         ? 2 * animProg.current * animProg.current
 //         : 1 - Math.pow(-2 * animProg.current + 2, 2) / 2;
 
 //       camera.position.lerpVectors(camStart.current, camTarget, eased);
 
-
 //       const currentLookAt = new THREE.Vector3();
 //       currentLookAt.lerpVectors(lookAtStart.current, lookAtTarget, eased);
 //       camera.lookAt(currentLookAt);
-
 //     }
-    
 //   });
   
-//   return null; // This component doesn't render anything visible
+//   return null;
 // };
-
 
 // const Sphere = ({ onSettle }: { onSettle: () => void }) => {
 //   const meshRef = useRef<THREE.Mesh>(null);
@@ -532,27 +556,21 @@ export default App;
 //   useFrame((_, delta) => {
 //     if (meshRef.current && !hasSettledRef.current) {
 //       const gravity = -80;
-//       const damping = 0.7; // energy loss on bounce (lower = more loss)
+//       const damping = 0.7;
 //       const groundLevel = -5;
-//       const stopThreshold = 0.3; // when to consider ball "stopped"
+//       const stopThreshold = 0.3;
 
-//       // apply velocity
 //       velocityRef.current += gravity * delta;
-
-//       // update position
 //       meshRef.current.position.y += velocityRef.current * delta;
 
-//       // ground collision
 //       if (meshRef.current.position.y <= groundLevel) {
-//         meshRef.current.position.y = groundLevel; // snap to ground
-//         velocityRef.current = -velocityRef.current * damping; // bounce with energy loss
+//         meshRef.current.position.y = groundLevel;
+//         velocityRef.current = -velocityRef.current * damping;
 
-//         // Check if ball has essentially stopped
 //         if (Math.abs(velocityRef.current) < stopThreshold) {
 //           velocityRef.current = 0;
 //           hasSettledRef.current = true;
           
-//           // Trigger name reveal after short delay
 //           setTimeout(() => {
 //             onSettle();
 //           }, 80);
@@ -564,7 +582,13 @@ export default App;
 //   return (
 //     <mesh ref={meshRef} position={[0, 10, 0]}>
 //       <sphereGeometry args={[4, 32, 32]} />
-//       <meshStandardMaterial color="#FF87B2" metalness={0.5} roughness={0.35} />
+//       <meshStandardMaterial 
+//         color="#5b6cd5" 
+//         metalness={0.8} 
+//         roughness={0.2} 
+//         emissive="#5b6cd5" 
+//         emissiveIntensity={0.3} 
+//       />
 //     </mesh>
 //   );
 // };
@@ -579,14 +603,11 @@ export default App;
 //         ${show ? 'opacity-100' : 'opacity-0'}
 //       `}
 //     >
-//       <h1 className="font-orbitron text-6xl font-bold text-[#F72585] m-0 drop-shadow-md">
+//       <h1 className="font-orbitron text-6xl font-bold text-[#00d9ff] m-0 drop-shadow-[0_0_20px_rgba(0,217,255,0.8)]">
 //         Welcome to HilaLand
 //       </h1>
-//       {/* <p className="font-work text-4xl text-[#2F0216]-600 mt-4"> */}
-//       <p className="font-work text-4xl font-semibold text-[#680431] mt-6 ">
-
-//         {/* Developer | Designer | Creator */}
-//         Mayor: Hilal B Tasdemir
+//       <p className="font-work text-4xl font-semibold text-[#9d4edd] mt-6 drop-shadow-[0_0_15px_rgba(157,78,221,0.6)]">
+//         {/* Mayor: Hilal B Tasdemir */}
 //       </p>
 //     </div>
 //   );
@@ -596,32 +617,26 @@ export default App;
 //   const [showName, setShowName] = useState(false);
 //   const [shouldZoom, setShouldZoom] = useState(false);
 //   const [shouldRotate, setShouldRotate] = useState(false); 
-//   const [showButtons, setShowButtons] = useState(false);
+//   const [showPlanets, setShowPlanets] = useState(false);
+//   const [currentView, setCurrentView] = useState<'solar' | 'about' | 'projects' | 'contact'>('solar');
 
 //   const handleSettle = () => {
 //     setShowName(true);
 //     setShouldRotate(true);
 //     setTimeout(() => {
 //       setShouldZoom(true);
+//       setShouldRotate(false);
 //     }, 2000);
 //     setTimeout(() => {
-//       setShowButtons(true);
-//     }, 3000); // Show 3 seconds after zoom starts
-//   };
-
-//   const handleZoomComplete = () => {
-//     setTimeout(() => {
-//       setShowButtons(true);
-//     }, 3000); // Show 3 seconds after zoom starts
+//       setShowPlanets(true);
+//       setShouldRotate(true);
+//     }, 5500);
 //   };
   
 //   return (
 //     <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
-
 //       <Canvas
-//         // camera={{ position: [0, 0, 15] }}
 //         camera={{ position: [0, 0, 20], fov: 50 }}
-
 //         style={{
 //           height: "100vh",
 //           width: "100vw",
@@ -631,47 +646,63 @@ export default App;
 //         }}
 //       >
 //         <OrbitControls
-//           enableZoom={true}
-//           enablePan={true}
+//           enableZoom={false}
+//           enablePan={false}
 //           enableDamping={true}
-//           enableRotate={true}
-//           autoRotate={!shouldZoom}
-//           autoRotateSpeed={5}
-//           enabled={!shouldZoom}
-//           // enabled={true}
-
+//           enableRotate={false}
+//           autoRotate={shouldRotate}
+//           autoRotateSpeed={3}
+//           target={[0, -1, 0]}
+//           enabled={true}
 //         />
 
 //         <CameraCtrl shouldZoom={shouldZoom} />
 
-//         {/* Lighting */}
-//         <ambientLight intensity={0.5} />
+//         {/* Lighting - cyberpunk vibes */}
+//         <ambientLight intensity={0.3} color="#0a0e27" />
 //         <directionalLight
 //           position={[10, 10, 5]}
-//           intensity={2.5}
-//           color="#ffffff"
+//           intensity={1.5}
+//           color="#00d9ff"
 //         />
-//         <pointLight position={[-10, 0, -5]} intensity={1.5} color="#FFB7D5" />
-//         <pointLight position={[0, -10, 0]} intensity={1} color="#FFF8E1" />
+//         <pointLight position={[-10, 0, -5]} intensity={2} color="#9d4edd" />
+//         <pointLight position={[10, -5, 5]} intensity={1.5} color="#f72585" />
+//         <pointLight position={[0, -10, 0]} intensity={1} color="#7209b7" />
 
-
-
-//         {/* Background */}
-//         <color attach="background" args={["#FFF3C7"]} />
+//         {/* Dark cyberpunk background */}
+//         <color attach="background" args={["#0a0e27"]} />
 
 //         <Sphere onSettle={handleSettle} />
-//         {/* <Sphere onSettle={() => setShowName(true)} /> */}
         
-//         {/* Ground plane for reference */}
-//         {/* <mesh position={[0, -50, 0]} rotation={[-Math.PI / 2, 0, 0]}> */}
+//         {/* Ground plane */}
 //         <mesh position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
 //           <planeGeometry args={[50, 50]} />
-//           <meshStandardMaterial color="#FFF3C7" opacity={0} transparent />
+//           <meshStandardMaterial color="#0a0e27" opacity={0} transparent />
 //         </mesh>
-//         <ButtonContainer show={showButtons} />
+
+//         <SolarSystem show={showPlanets} onPlanetClick={(planetID) =>
+//           { setCurrentView(planetID as 'about' | 'projects' | 'contact')
+//         }}/>
 //       </Canvas>
 
 //       <NameReveal show={showName} />
+        
+//     {currentView === 'about' && (
+//     <div className="absolute inset-0 bg-[#0a0e27]/95 backdrop-blur-sm flex items-center justify-center p-8">
+//       <div className="max-w-4xl w-full bg-gradient-to-br from-[#7209b7]/20 to-[#0a0e27]/40 backdrop-blur-md rounded-2xl p-12 border border-[#7209b7]/30">
+        
+//         {/* Back button */}
+//         <button onClick={() => setCurrentView('solar')}>
+//           ← Back to Solar System
+//         </button>
+
+//         {/* Your content here */}
+//         <h2>About Me</h2>
+//         <p>Your bio...</p>
+//       </div>
+//     </div>
+//   )}
+      
 //     </div>
 //   );
 // };
