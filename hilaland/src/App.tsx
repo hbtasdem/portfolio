@@ -3,42 +3,58 @@ import { OrbitControls, Text } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
-const Planet = ({
+const ProjectPlanet = ({
   orbitRadius,
   orbitSpeed,
   planetSize,
   planetColor,
   label,
-  onClick
+  projectData,
+  onClick,
+  isVisited
 }: {
   orbitRadius: number,
   orbitSpeed: number,
   planetSize: number,
   planetColor: string,
   label: string,
-  onClick: () => void
+  projectData: any,
+  onClick: () => void,
+  isVisited: boolean
 }) => {
   const groupRef = useRef<THREE.Group>(null);
+  const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
   // Orbit animation
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     if (groupRef.current) {
       groupRef.current.rotation.y += delta * orbitSpeed;
+    }
+    
+    // Sparkle effect for visited planets
+    if (meshRef.current && isVisited) {
+      meshRef.current.rotation.y += delta * 0.5;
+      meshRef.current.rotation.z += delta * 0.3;
     }
   });
 
   return (
     <group ref={groupRef}>
-      {/* Orbit path visualization (optional) */}
+      {/* Orbit ring */}
       <mesh rotation={[-Math.PI / 2, 0, 0]}>
         <ringGeometry args={[orbitRadius - 0.05, orbitRadius + 0.05, 64]} />
-        <meshBasicMaterial color="#00d9ff" opacity={0.3} transparent />
+        <meshBasicMaterial 
+          color={isVisited ? planetColor : "#00d9ff"} 
+          opacity={isVisited ? 0.5 : 0.2} 
+          transparent 
+        />
       </mesh>
 
-      {/* The planet itself */}
+      {/* The planet */}
       <group position={[orbitRadius, 0, 0]}>
         <mesh
+          ref={meshRef}
           onClick={onClick}
           onPointerOver={() => setHovered(true)}
           onPointerOut={() => setHovered(false)}
@@ -47,10 +63,10 @@ const Planet = ({
           <sphereGeometry args={[planetSize, 24, 24]} />
           <meshStandardMaterial 
             color={planetColor}
-            emissive={hovered ? planetColor : "#000000"}
-            emissiveIntensity={hovered ? 0.8 : 0.2}
-            metalness={0.6}
-            roughness={0.2}
+            emissive={isVisited || hovered ? planetColor : "#000000"}
+            emissiveIntensity={isVisited ? 0.8 : (hovered ? 0.5 : 0.1)}
+            metalness={isVisited ? 0.9 : 0.6}
+            roughness={isVisited ? 0.1 : 0.3}
           />
         </mesh>
 
@@ -59,7 +75,7 @@ const Planet = ({
           <Text
             position={[0, planetSize + 0.5, 0]}
             fontSize={0.3}
-            color="#00d9ff"
+            color={isVisited ? planetColor : "#00d9ff"}
             anchorX="center"
             anchorY="middle"
           >
@@ -71,66 +87,83 @@ const Planet = ({
   );
 };
 
-const SolarSystem = ({ show, onPlanetClick }: { show: boolean, onPlanetClick: (planetId: string) => void }) => {
-  const [activePlanet, setActivePlanet] = useState<string | null>(null);
-
+const ProjectsSystem = ({ 
+  show, 
+  onProjectClick,
+  visitedProjects 
+}: { 
+  show: boolean, 
+  onProjectClick: (project: any) => void,
+  visitedProjects: Set<string>
+}) => {
   if (!show) return null;
 
-  const planets = [
+  const projects = [
     {
-      id: "about",
-      label: "About Me",
-      orbitRadius: 8,
-      orbitSpeed: -1.3,
-      planetSize: 1,
-      planetColor: "#8e3ec2"
-    },
-    {
-      id: "projects",
-      label: "Projects",
-      orbitRadius: 12,
-      orbitSpeed: -1.2,
-      planetSize: 1.2,
-      planetColor: "#00d9ff"
-    },
-    {
-      id: "contact",
-      label: "Contact",
+      id: "project1",
+      label: "Project Alpha",
       orbitRadius: 16,
-      orbitSpeed: -1,
+      orbitSpeed: 0.18,
       planetSize: 0.8,
-      planetColor: "#f72585"
+      planetColor: "#7209b7",
+      title: "Project Alpha",
+      description: "A revolutionary web application that combines AI with creative design.",
+      tech: ["React", "Three.js", "TypeScript"],
+      link: "https://github.com/yourusername/project1"
+    },
+    {
+      id: "project2",
+      label: "Project Beta",
+      orbitRadius: 11,
+      orbitSpeed: 0.12,
+      planetSize: 1,
+      planetColor: "#00d9ff",
+      title: "Project Beta",
+      description: "An immersive 3D experience for exploring data visualizations.",
+      tech: ["WebGL", "D3.js", "Node.js"],
+      link: "https://github.com/yourusername/project2"
+    },
+    {
+      id: "project3",
+      label: "Project Gamma",
+      orbitRadius: 14,
+      orbitSpeed: 0.21,
+      planetSize: 0.7,
+      planetColor: "#f72585",
+      title: "Project Gamma",
+      description: "A mobile-first app for collaborative creative workflows.",
+      tech: ["React Native", "Firebase", "Redux"],
+      link: "https://github.com/yourusername/project3"
+    },
+    {
+      id: "project4",
+      label: "Project Delta",
+      orbitRadius: 17,
+      orbitSpeed: 0.15,
+      planetSize: 0.9,
+      planetColor: "#9d4edd",
+      title: "Project Delta",
+      description: "Real-time multiplayer game built with modern web technologies.",
+      tech: ["Socket.io", "Canvas API", "Express"],
+      link: "https://github.com/yourusername/project4"
     }
   ];
 
   return (
     <>
-      {planets.map((planet) => (
-        <Planet
-          key={planet.id}
-          orbitRadius={planet.orbitRadius}
-          orbitSpeed={planet.orbitSpeed}
-          planetSize={planet.planetSize}
-          planetColor={planet.planetColor}
-          label={planet.label}
-          onClick={() => {
-            console.log(`Clicked ${planet.label}`);
-            setActivePlanet(planet.id);
-            onPlanetClick(planet.id);
-          }}
+      {projects.map((project) => (
+        <ProjectPlanet
+          key={project.id}
+          orbitRadius={project.orbitRadius}
+          orbitSpeed={project.orbitSpeed}
+          planetSize={project.planetSize}
+          planetColor={project.planetColor}
+          label={project.label}
+          projectData={project}
+          onClick={() => onProjectClick(project)}
+          isVisited={visitedProjects.has(project.id)}
         />
       ))}
-
-      {/* Temporary - show what was clicked */}
-      {activePlanet && (
-        <Text
-          position={[0, 8, 0]}
-          fontSize={0.5}
-          color="#00d9ff"
-        >
-          {activePlanet.toUpperCase()}
-        </Text>
-      )}
     </>
   );
 };
@@ -173,10 +206,19 @@ const CameraCtrl = ({ shouldZoom }: { shouldZoom: boolean }) => {
   return null;
 };
 
-const Sphere = ({ onSettle }: { onSettle: () => void }) => {
+const Sun = ({ 
+  onSettle, 
+  onClick, 
+  isClickable 
+}: { 
+  onSettle: () => void,
+  onClick: () => void,
+  isClickable: boolean
+}) => {
   const meshRef = useRef<THREE.Mesh>(null);
   const velocityRef = useRef(0);
   const hasSettledRef = useRef(false);
+  const [hovered, setHovered] = useState(false);
 
   useFrame((_, delta) => {
     if (meshRef.current && !hasSettledRef.current) {
@@ -205,14 +247,21 @@ const Sphere = ({ onSettle }: { onSettle: () => void }) => {
   });
 
   return (
-    <mesh ref={meshRef} position={[0, 10, 0]}>
+    <mesh 
+      ref={meshRef} 
+      position={[0, 10, 0]}
+      onClick={isClickable ? onClick : undefined}
+      onPointerOver={isClickable ? () => setHovered(true) : undefined}
+      onPointerOut={isClickable ? () => setHovered(false) : undefined}
+      scale={hovered && isClickable ? 1.05 : 1}
+    >
       <sphereGeometry args={[4, 24, 24]} />
       <meshStandardMaterial 
         color="#5b6cd5" 
         metalness={0.8} 
         roughness={0.2} 
         emissive="#5b6cd5" 
-        emissiveIntensity={0.3} 
+        emissiveIntensity={hovered && isClickable ? 0.6 : 0.3} 
       />
     </mesh>
   );
@@ -231,8 +280,8 @@ const NameReveal = ({ show }: { show: boolean }) => {
       <h1 className="font-orbitron text-6xl font-bold text-[#00d9ff] m-0 drop-shadow-[0_0_20px_rgba(0,217,255,0.8)]">
         Welcome to HilaLand
       </h1>
-      <p className="font-work text-4xl font-semibold text-[#9d4edd] mt-6 drop-shadow-[0_0_15px_rgba(157,78,221,0.6)]">
-        {/* Mayor: Hilal B Tasdemir */}
+      <p className="font-work text-2xl font-semibold text-[#9d4edd] mt-4 drop-shadow-[0_0_15px_rgba(157,78,221,0.6)]">
+        Click the sun to learn about me
       </p>
     </div>
   );
@@ -243,7 +292,10 @@ const App = () => {
   const [shouldZoom, setShouldZoom] = useState(false);
   const [shouldRotate, setShouldRotate] = useState(false); 
   const [showPlanets, setShowPlanets] = useState(false);
-  const [currentView, setCurrentView] = useState<'solar' | 'about' | 'projects' | 'contact'>('solar');
+  const [currentView, setCurrentView] = useState<'solar' | 'about' | 'project'>('solar');
+  const [selectedProject, setSelectedProject] = useState<any>(null);
+  const [visitedProjects, setVisitedProjects] = useState<Set<string>>(new Set());
+  const [sunClickable, setSunClickable] = useState(false);
 
   const handleSettle = () => {
     setShowName(true);
@@ -255,7 +307,19 @@ const App = () => {
     setTimeout(() => {
       setShowPlanets(true);
       setShouldRotate(true);
+      setSunClickable(true);
     }, 5500);
+  };
+
+  const handleProjectClick = (project: any) => {
+    setSelectedProject(project);
+    setCurrentView('project');
+    setVisitedProjects(prev => new Set([...prev, project.id]));
+  };
+
+  const handleBackToSolar = () => {
+    setCurrentView('solar');
+    setSelectedProject(null);
   };
   
   return (
@@ -284,7 +348,7 @@ const App = () => {
 
         <CameraCtrl shouldZoom={shouldZoom} />
 
-        {/* Lighting - cyberpunk vibes */}
+        {/* Lighting */}
         <ambientLight intensity={0.3} color="#0a0e27" />
         <directionalLight
           position={[10, 10, 5]}
@@ -292,13 +356,18 @@ const App = () => {
           color="#00d9ff"
         />
         <pointLight position={[-10, 0, -5]} intensity={2} color="#9d4edd" />
-        <pointLight position={[10, -5, 5]} intensity={1.5} color="#f72585" />
         <pointLight position={[0, -10, 0]} intensity={1} color="#7209b7" />
 
         {/* Dark cyberpunk background */}
         <color attach="background" args={["#0a0e27"]} />
 
-        {currentView === 'solar' && <Sphere onSettle={handleSettle} />}
+        {currentView === 'solar' && (
+          <Sun 
+            onSettle={handleSettle} 
+            onClick={() => setCurrentView('about')}
+            isClickable={sunClickable}
+          />
+        )}
         
         {/* Ground plane */}
         <mesh position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -306,45 +375,49 @@ const App = () => {
           <meshStandardMaterial color="#0a0e27" opacity={0} transparent />
         </mesh>
 
-        <SolarSystem show={showPlanets && currentView === 'solar'} onPlanetClick={(planetId) => {
-          setCurrentView(planetId as 'about' | 'projects' | 'contact');
-        }} />
+        <ProjectsSystem 
+          show={showPlanets && currentView === 'solar'} 
+          onProjectClick={handleProjectClick}
+          visitedProjects={visitedProjects}
+        />
       </Canvas>
 
       <NameReveal show={showName && currentView === 'solar'} />
 
-      {/* About Me Page */}
+      {/* About Me Page (Sun clicked) */}
       {currentView === 'about' && (
-        <div className="absolute inset-0 bg-[#0a0e27]/95 backdrop-blur-sm flex items-center justify-center p-8 animate-fadeIn">
-          <div className="max-w-4xl w-full bg-gradient-to-br from-[#7209b7]/20 to-[#0a0e27]/40 backdrop-blur-md rounded-2xl p-12 border border-[#7209b7]/30 shadow-[0_0_50px_rgba(114,9,183,0.3)]">
-            {/* Back button */}
+        <div className="absolute inset-0 bg-[#0a0e27]/95 backdrop-blur-sm flex items-center justify-center p-8">
+          <div className="max-w-4xl w-full bg-gradient-to-br from-[#00d9ff]/20 to-[#0a0e27]/40 backdrop-blur-md rounded-2xl p-12 border border-[#00d9ff]/30 shadow-[0_0_50px_rgba(0,217,255,0.3)]">
+            
             <button
-              onClick={() => setCurrentView('solar')}
-              className="mb-8 px-6 py-3 bg-[#7209b7] text-white rounded-lg hover:bg-[#9d4edd] transition-all duration-300 hover:shadow-[0_0_20px_rgba(114,9,183,0.6)] font-work"
+              onClick={handleBackToSolar}
+              className="mb-8 px-6 py-3 bg-[#00d9ff] text-[#0a0e27] rounded-lg hover:bg-[#00f0ff] transition-all duration-300 font-work font-semibold"
             >
               ← Back to Solar System
             </button>
 
-            {/* Content */}
             <h2 className="font-orbitron text-5xl font-bold text-[#00d9ff] mb-6 drop-shadow-[0_0_20px_rgba(0,217,255,0.8)]">
-              About Me
+              Hello traveler!
             </h2>
             
             <div className="space-y-6 text-white/90 font-work text-lg leading-relaxed">
               <p>
-                Welcome to my corner of the digital universe! I'm Hilal B Tasdemir, 
-                a passionate developer and creator who loves building immersive experiences.
+                Welcome to HILALAND, my corner of the digital universe where I share my projects as orbiting planets!
               </p>
               
+              
               <p>
-                I specialize in web development, 3D graphics, and interactive design. 
-                My mission is to blend creativity with technology to craft experiences 
-                that are both beautiful and functional.
+                I'm an engineer on a mission to make tech sustainable.
+                My name 'Hilal' means crescent moon in Arabic. I'm building tech so future generations can still see one.
+
+                For decades, we feared robots would take over. Now it looks like climate change will get us first.
+                I'm here to change that.
+                My mission: Make AI smart AND efficient. Let the machines take over. They can't possibly mess it up worse than we did.
               </p>
 
               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-[#7209b7]/20 p-6 rounded-lg border border-[#7209b7]/30">
-                  <h3 className="text-[#9d4edd] font-bold text-xl mb-3 font-orbitron">Skills</h3>
+                <div className="bg-[#00d9ff]/20 p-6 rounded-lg border border-[#00d9ff]/30">
+                  <h3 className="text-[#00d9ff] font-bold text-xl mb-3 font-orbitron">Skills</h3>
                   <ul className="space-y-2 text-white/80">
                     <li>• React & Three.js</li>
                     <li>• TypeScript</li>
@@ -353,8 +426,8 @@ const App = () => {
                   </ul>
                 </div>
 
-                <div className="bg-[#7209b7]/20 p-6 rounded-lg border border-[#7209b7]/30">
-                  <h3 className="text-[#9d4edd] font-bold text-xl mb-3 font-orbitron">Interests</h3>
+                <div className="bg-[#00d9ff]/20 p-6 rounded-lg border border-[#00d9ff]/30">
+                  <h3 className="text-[#00d9ff] font-bold text-xl mb-3 font-orbitron">Interests</h3>
                   <ul className="space-y-2 text-white/80">
                     <li>• Creative Coding</li>
                     <li>• Space & Astronomy</li>
@@ -363,6 +436,69 @@ const App = () => {
                   </ul>
                 </div>
               </div>
+
+              <p className="text-[#9d4edd] font-semibold mt-8 text-center">
+                ✨ Explore the orbiting planets to see my projects! ✨
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Project Detail Page (Planet clicked) */}
+      {currentView === 'project' && selectedProject && (
+        <div className="absolute inset-0 bg-[#0a0e27]/95 backdrop-blur-sm flex items-center justify-center p-8">
+          <div className="max-w-4xl w-full bg-gradient-to-br from-[#7209b7]/20 to-[#0a0e27]/40 backdrop-blur-md rounded-2xl p-12 border border-[#7209b7]/30 shadow-[0_0_50px_rgba(114,9,183,0.3)]">
+            
+            <button
+              onClick={handleBackToSolar}
+              className="mb-8 px-6 py-3 bg-[#7209b7] text-white rounded-lg hover:bg-[#9d4edd] transition-all duration-300 font-work"
+            >
+              ← Back to Solar System
+            </button>
+
+            <div className="flex items-center gap-3 mb-6">
+              <div 
+                className="w-4 h-4 rounded-full animate-pulse"
+                style={{ 
+                  backgroundColor: selectedProject.planetColor,
+                  boxShadow: `0 0 20px ${selectedProject.planetColor}`
+                }}
+              />
+              <h2 className="font-orbitron text-5xl font-bold text-[#00d9ff] drop-shadow-[0_0_20px_rgba(0,217,255,0.8)]">
+                {selectedProject.title}
+              </h2>
+            </div>
+            
+            <div className="space-y-6 text-white/90 font-work text-lg leading-relaxed">
+              <p className="text-xl">{selectedProject.description}</p>
+
+              <div className="bg-[#7209b7]/20 p-6 rounded-lg border border-[#7209b7]/30">
+                <h3 className="text-[#9d4edd] font-bold text-xl mb-3 font-orbitron">Technologies Used</h3>
+                <div className="flex flex-wrap gap-3">
+                  {selectedProject.tech.map((tech: string, i: number) => (
+                    <span 
+                      key={i}
+                      className="px-4 py-2 bg-[#00d9ff]/20 border border-[#00d9ff]/30 rounded-full text-[#00d9ff] text-sm"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <a 
+                href={selectedProject.link}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block px-8 py-4 bg-gradient-to-r from-[#7209b7] to-[#f72585] text-white rounded-lg hover:shadow-[0_0_30px_rgba(247,37,133,0.6)] transition-all duration-300 font-semibold"
+              >
+                View Project on GitHub →
+              </a>
+
+              <p className="text-[#9d4edd] font-semibold text-center mt-8">
+                ⭐ Planet collected! This one will stay sparkly. ⭐
+              </p>
             </div>
           </div>
         </div>
@@ -419,13 +555,14 @@ export default App;
 //           onPointerOut={() => setHovered(false)}
 //           scale={hovered ? 1.2 : 1}
 //         >
-//           <sphereGeometry args={[planetSize, 32, 32]} />
+//           <sphereGeometry args={[planetSize, 24, 24]} />
 //           <meshStandardMaterial 
 //             color={planetColor}
 //             emissive={hovered ? planetColor : "#000000"}
-//             emissiveIntensity={hovered ? 0.8 : 0.2}
+//             emissiveIntensity={hovered ? 0.9 : 0.6}
 //             metalness={0.6}
-//             roughness={0.2}
+//             roughness={0.4}
+//             // roughnessMap={ }
 //           />
 //         </mesh>
 
@@ -446,7 +583,7 @@ export default App;
 //   );
 // };
 
-// const SolarSystem = ({ show }: { show: boolean }) => {
+// const SolarSystem = ({ show, onPlanetClick }: { show: boolean, onPlanetClick: (planetId: string) => void }) => {
 //   const [activePlanet, setActivePlanet] = useState<string | null>(null);
 
 //   if (!show) return null;
@@ -456,7 +593,7 @@ export default App;
 //       id: "about",
 //       label: "About Me",
 //       orbitRadius: 8,
-//       orbitSpeed: -0.8,
+//       orbitSpeed: -1.3,
 //       planetSize: 1,
 //       planetColor: "#8e3ec2"
 //     },
@@ -464,17 +601,17 @@ export default App;
 //       id: "projects",
 //       label: "Projects",
 //       orbitRadius: 12,
-//       orbitSpeed: -0.7,
+//       orbitSpeed: -1.2,
 //       planetSize: 1.2,
-//       planetColor: "#00d9ff"
+//       planetColor: "#780C28"
 //     },
 //     {
 //       id: "contact",
 //       label: "Contact",
 //       orbitRadius: 16,
-//       orbitSpeed: -0.5,
+//       orbitSpeed: -1,
 //       planetSize: 0.8,
-//       planetColor: "#f72585"
+//       planetColor: "#8AA624"
 //     }
 //   ];
 
@@ -581,7 +718,7 @@ export default App;
 
 //   return (
 //     <mesh ref={meshRef} position={[0, 10, 0]}>
-//       <sphereGeometry args={[4, 32, 32]} />
+//       <sphereGeometry args={[4, 24, 24]} />
 //       <meshStandardMaterial 
 //         color="#5b6cd5" 
 //         metalness={0.8} 
@@ -649,11 +786,12 @@ export default App;
 //           enableZoom={false}
 //           enablePan={false}
 //           enableDamping={true}
+//           dampingFactor={0.05}
 //           enableRotate={false}
 //           autoRotate={shouldRotate}
 //           autoRotateSpeed={3}
 //           target={[0, -1, 0]}
-//           enabled={true}
+//           enabled={currentView === 'solar'}
 //         />
 
 //         <CameraCtrl shouldZoom={shouldZoom} />
@@ -672,7 +810,7 @@ export default App;
 //         {/* Dark cyberpunk background */}
 //         <color attach="background" args={["#0a0e27"]} />
 
-//         <Sphere onSettle={handleSettle} />
+//         {currentView === 'solar' && <Sphere onSettle={handleSettle} />}
         
 //         {/* Ground plane */}
 //         <mesh position={[0, -5, 0]} rotation={[-Math.PI / 2, 0, 0]}>
@@ -680,29 +818,66 @@ export default App;
 //           <meshStandardMaterial color="#0a0e27" opacity={0} transparent />
 //         </mesh>
 
-//         <SolarSystem show={showPlanets} onPlanetClick={(planetID) =>
-//           { setCurrentView(planetID as 'about' | 'projects' | 'contact')
-//         }}/>
+//         <SolarSystem show={showPlanets && currentView === 'solar'} onPlanetClick={(planetId) => {
+//           setCurrentView(planetId as 'about' | 'projects' | 'contact');
+//         }} />
 //       </Canvas>
 
-//       <NameReveal show={showName} />
-        
-//     {currentView === 'about' && (
-//     <div className="absolute inset-0 bg-[#0a0e27]/95 backdrop-blur-sm flex items-center justify-center p-8">
-//       <div className="max-w-4xl w-full bg-gradient-to-br from-[#7209b7]/20 to-[#0a0e27]/40 backdrop-blur-md rounded-2xl p-12 border border-[#7209b7]/30">
-        
-//         {/* Back button */}
-//         <button onClick={() => setCurrentView('solar')}>
-//           ← Back to Solar System
-//         </button>
+//       <NameReveal show={showName && currentView === 'solar'} />
 
-//         {/* Your content here */}
-//         <h2>About Me</h2>
-//         <p>Your bio...</p>
-//       </div>
-//     </div>
-//   )}
-      
+//       {/* About Me Page */}
+//       {currentView === 'about' && (
+//         <div className="absolute inset-0 bg-[#0a0e27]/95 backdrop-blur-sm flex items-center justify-center p-8 animate-fadeIn">
+//           <div className="max-w-4xl w-full bg-gradient-to-br from-[#7209b7]/20 to-[#0a0e27]/40 backdrop-blur-md rounded-2xl p-12 border border-[#7209b7]/30 shadow-[0_0_50px_rgba(114,9,183,0.3)]">
+//             {/* Back button */}
+//             <button
+//               onClick={() => setCurrentView('solar')}
+//               className="mb-8 px-6 py-3 bg-[#7209b7] text-white rounded-lg hover:bg-[#9d4edd] transition-all duration-300 hover:shadow-[0_0_20px_rgba(114,9,183,0.6)] font-work"
+//             >
+//               ← Back to Solar System
+//             </button>
+
+//             {/* Content */}
+//             <h2 className="font-orbitron text-5xl font-bold text-[#00d9ff] mb-6 drop-shadow-[0_0_20px_rgba(0,217,255,0.8)]">
+//               Hello traveler!
+//             </h2>
+            
+//             <div className="space-y-6 text-white/90 font-work text-lg leading-relaxed">
+//               <p>
+//                 Welcome to HILALAND, my personal galaxy in the digital universe.
+//               </p>
+              
+//               <p>
+//                 I specialize in web development, 3D graphics, and interactive design. 
+//                 My mission is to blend creativity with technology to craft experiences 
+//                 that are both beautiful and functional.
+//               </p>
+
+//               <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+//                 <div className="bg-[#7209b7]/20 p-6 rounded-lg border border-[#7209b7]/30">
+//                   <h3 className="text-[#9d4edd] font-bold text-xl mb-3 font-orbitron">Skills</h3>
+//                   <ul className="space-y-2 text-white/80">
+//                     <li>• React & Three.js</li>
+//                     <li>• TypeScript</li>
+//                     <li>• 3D Web Graphics</li>
+//                     <li>• UI/UX Design</li>
+//                   </ul>
+//                 </div>
+
+//                 <div className="bg-[#7209b7]/20 p-6 rounded-lg border border-[#7209b7]/30">
+//                   <h3 className="text-[#9d4edd] font-bold text-xl mb-3 font-orbitron">Interests</h3>
+//                   <ul className="space-y-2 text-white/80">
+//                     <li>• Creative Coding</li>
+//                     <li>• Space & Astronomy</li>
+//                     <li>• Generative Art</li>
+//                     <li>• Game Development</li>
+//                   </ul>
+//                 </div>
+//               </div>
+//             </div>
+//           </div>
+//         </div>
+//       )}
 //     </div>
 //   );
 // };
