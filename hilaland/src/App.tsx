@@ -101,51 +101,51 @@ const ProjectsSystem = ({
   const projects = [
     {
       id: "project1",
-      label: "Project Alpha",
+      label: "BeBoiler",
       orbitRadius: 16,
       orbitSpeed: 0.18,
       planetSize: 0.8,
       planetColor: "#7209b7",
-      title: "Project Alpha",
-      description: "A revolutionary web application that combines AI with creative design.",
-      tech: ["React", "Three.js", "TypeScript"],
-      link: "https://github.com/yourusername/project1"
+      title: "BeBoiler",
+      description: "BeBoiler is the ultimate mobile platform designed to help Purdue students discover and engage with the countless opportunities campus has to offer — all in real time.",
+      tech: ["Expo", "TypeScript", "Firebase"],
+      link: "https://github.com/rsugiart/BeBoiler"
     },
     {
       id: "project2",
-      label: "Project Beta",
+      label: "Workpresso",
       orbitRadius: 11,
       orbitSpeed: 0.12,
       planetSize: 1,
       planetColor: "#00d9ff",
-      title: "Project Beta",
-      description: "An immersive 3D experience for exploring data visualizations.",
-      tech: ["WebGL", "D3.js", "Node.js"],
-      link: "https://github.com/yourusername/project2"
+      title: "Workpresso",
+      description: "Pomodoro timer app with a gamified coffee-brewing experience, enhancing user engagement. Built custom navigation and interactive UI components with React Native and TypeScript, focusing on usability. Implemented AI task manager, gained experience with Node.js and npm to manage TS packages during application development.",
+      tech: ["Node.js", "React Native", "TypeScript", "OpenAI API"],
+      link: "https://github.com/hbtasdem/workpresso"
     },
     {
       id: "project3",
-      label: "Project Gamma",
+      label: "Pre-Trained Model Scorer",
       orbitRadius: 14,
       orbitSpeed: 0.21,
       planetSize: 0.7,
       planetColor: "#f72585",
       title: "Project Gamma",
-      description: "A mobile-first app for collaborative creative workflows.",
-      tech: ["React Native", "Firebase", "Redux"],
-      link: "https://github.com/yourusername/project3"
+      description: "Command-line interface for automated Hugging Face model scoring based on custom business criteria.",
+      tech: ["Rest API", "Pytest", "AWS", "CI/CD"],
+      link: "https://github.com/hbtasdem/ECE30861_Team4"
     },
     {
       id: "project4",
-      label: "Project Delta",
+      label: "Wafer Defect Detection",
       orbitRadius: 17,
       orbitSpeed: 0.15,
       planetSize: 0.9,
       planetColor: "#9d4edd",
-      title: "Project Delta",
-      description: "Real-time multiplayer game built with modern web technologies.",
-      tech: ["Socket.io", "Canvas API", "Express"],
-      link: "https://github.com/yourusername/project4"
+      title: "Wafer Defect Detection",
+      description: "Wafer Defect Detection using ViT",
+      tech: ["PyTorch", "TorchVision", "HuggingFace"],
+      link: "https://https://github.com/hbtasdem/wafer-defect-detection"
     }
   ];
 
@@ -410,8 +410,9 @@ const App = () => {
                 I'm an engineer on a mission to make tech sustainable.
                 My name 'Hilal' means crescent moon in Arabic. I'm building tech so future generations can still see one.
 
-                For decades, we feared robots would take over. Now it looks like climate change will get us first.
-                I'm here to change that.
+                For decades, we feared robots would take over. Now it looks like climate change will get us first...
+                
+                <p> But I'm here to change that.</p>
                 My mission: Make AI smart AND efficient. Let the machines take over. They can't possibly mess it up worse than we did.
               </p>
 
