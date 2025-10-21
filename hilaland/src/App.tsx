@@ -125,12 +125,12 @@ const ProjectsSystem = ({
     },
     {
       id: "project3",
-      label: "Pre-Trained Model Scorer",
+      label: "Model Scorer",
       orbitRadius: 14,
       orbitSpeed: 0.21,
       planetSize: 0.7,
       planetColor: "#f72585",
-      title: "Project Gamma",
+      title: "Model Scorer",
       description: "Command-line interface for automated Hugging Face model scoring based on custom business criteria.",
       tech: ["Rest API", "Pytest", "AWS", "CI/CD"],
       link: "https://github.com/hbtasdem/ECE30861_Team4"
@@ -407,7 +407,7 @@ const App = () => {
               
               
               <p>
-                I'm an engineer on a mission to make tech sustainable.
+                I'm a computer engineer on a mission to make tech sustainable.
                 My name 'Hilal' means crescent moon in Arabic. I'm building tech so future generations can still see one.
 
                 For decades, we feared robots would take over. Now it looks like climate change will get us first...
