@@ -100,54 +100,54 @@ const ProjectsSystem = ({
 
   const projects = [
     {
-      id: "project1",
-      label: "BeBoiler",
-      orbitRadius: 16,
-      orbitSpeed: 0.18,
-      planetSize: 0.8,
-      planetColor: "#7209b7",
-      title: "BeBoiler",
-      description: "BeBoiler is the ultimate mobile platform designed to help Purdue students discover and engage with the countless opportunities campus has to offer — all in real time.",
-      tech: ["Expo", "TypeScript", "Firebase"],
-      link: "https://github.com/rsugiart/BeBoiler"
-    },
-    {
-      id: "project2",
-      label: "Workpresso",
-      orbitRadius: 11,
-      orbitSpeed: 0.12,
-      planetSize: 1,
-      planetColor: "#00d9ff",
-      title: "Workpresso",
-      description: "Pomodoro timer app with a gamified coffee-brewing experience, enhancing user engagement. Built custom navigation and interactive UI components with React Native and TypeScript, focusing on usability. Implemented AI task manager, gained experience with Node.js and npm to manage TS packages during application development.",
-      tech: ["Node.js", "React Native", "TypeScript", "OpenAI API"],
-      link: "https://github.com/hbtasdem/workpresso"
-    },
-    {
-      id: "project3",
-      label: "Model Scorer",
-      orbitRadius: 14,
-      orbitSpeed: 0.21,
-      planetSize: 0.7,
-      planetColor: "#f72585",
-      title: "Model Scorer",
-      description: "Command-line interface for automated Hugging Face model scoring based on custom business criteria.",
-      tech: ["Rest API", "Pytest", "AWS", "CI/CD"],
-      link: "https://github.com/hbtasdem/ECE30861_Team4"
-    },
-    {
-      id: "project4",
-      label: "Wafer Defect Detection",
-      orbitRadius: 17,
-      orbitSpeed: 0.15,
-      planetSize: 0.9,
-      planetColor: "#9d4edd",
-      title: "Wafer Defect Detection",
-      description: "Wafer Defect Detection using ViT",
-      tech: ["PyTorch", "TorchVision", "HuggingFace"],
-      link: "https://https://github.com/hbtasdem/wafer-defect-detection"
-    }
-  ];
+    id: "project1",
+    label: "BoilerFace",
+    orbitRadius: 8,
+    orbitSpeed: 0.09,
+    planetSize: 0.8,
+    planetColor: "#7209b7",
+    title: "BoilerFace - AWS ML Model Registry",
+    description: "Building an ML model registry on AWS that automatically evaluates and scores HuggingFace models. Integrates S3, Lambda, and CI/CD pipelines to assess models across custom business criteria including bus factor, correctness, and license compatibility. Achieved 80% test coverage with automated scoring system.",
+    tech: ["AWS (S3, Lambda)", "Python", "HuggingFace API", "CI/CD", "Pytest"],
+    link: "https://github.com/hbtasdem/ECE30861_Team4"
+  },
+  {
+    id: "project2",
+    label: "Defect Detection",
+    orbitRadius: 11,
+    orbitSpeed: 0.08,
+    planetSize: 1,
+    planetColor: "#00d9ff",
+    title: "Vision Transformers for Defect Detection",
+    description: "Applied transfer learning with Vision Transformers to tackle data scarcity in semiconductor manufacturing. Successfully classified 9 defect types using only 902 domain-specific images, demonstrating how pre-trained models can solve real-world industrial challenges with limited data.",
+    tech: ["Vision Transformers", "PyTorch", "Transfer Learning", "OpenCV"],
+    link: "https://github.com/hbtasdem/wafer-defect-detection"
+  },
+  {
+    id: "project3",
+    label: "Workpresso",
+    orbitRadius: 14,
+    orbitSpeed: 0.1,
+    planetSize: 0.7,
+    planetColor: "#f72585",
+    title: "Workpresso - AI-Powered Productivity App",
+    description: "Full-stack Pomodoro productivity app featuring an AI chatbot that estimates task completion times through natural language processing. Gamified with a coffee-brewing interface to make productivity engaging. Built with React Native frontend, Node.js backend, and deployed cross-platform via Expo.",
+    tech: ["React Native", "TypeScript", "Node.js", "Express", "AI/NLP", "Expo"],
+    link: "https://github.com/hbtasdem/workpresso"
+  },
+  {
+    id: "project4",
+    label: "BeBoiler",
+    orbitRadius: 17,
+    orbitSpeed: 0.12,
+    planetSize: 0.9,
+    planetColor: "#9d4edd",
+    title: "BeBoiler - Campus Discovery Platform",
+    description: "Gamified social platform connecting Purdue students to real-time campus opportunities. Built React Native frontend with Firebase Authentication and Expo push notifications. Won 2nd place in InnovateHer Hackathon for helping students discover events, activities, and experiences across campus.",
+    tech: ["React Native", "Firebase Auth", "Expo Push Notifications", "Mobile Dev"],
+    link: "https://github.com/rsugiart/BeBoiler"
+  }
+];
 
   return (
     <>
@@ -410,7 +410,7 @@ const App = () => {
                 I'm a computer engineer on a mission to make tech sustainable.
                 My name 'Hilal' means crescent moon in Arabic. I'm building tech so future generations can still see one.
 
-                For decades, we feared robots would take over. Now it looks like climate change will get us first...
+               <p> For decades, we feared robots would take over. Now it looks like climate change will get us first... </p> 
                 
                 <p> But I'm here to change that.</p>
                 My mission: Make AI smart AND efficient. Let the machines take over. They can't possibly mess it up worse than we did.
@@ -420,20 +420,20 @@ const App = () => {
                 <div className="bg-[#00d9ff]/20 p-6 rounded-lg border border-[#00d9ff]/30">
                   <h3 className="text-[#00d9ff] font-bold text-xl mb-3 font-orbitron">Skills</h3>
                   <ul className="space-y-2 text-white/80">
-                    <li>• React & Three.js</li>
-                    <li>• TypeScript</li>
-                    <li>• 3D Web Graphics</li>
-                    <li>• UI/UX Design</li>
+                    <li>• Python, TypeScript, C </li>
+                    <li>• React Native & Three.js</li>
+                    <li>• Pytorch </li>
+                    <li>• OpenCV, YOLO </li>
                   </ul>
                 </div>
 
                 <div className="bg-[#00d9ff]/20 p-6 rounded-lg border border-[#00d9ff]/30">
                   <h3 className="text-[#00d9ff] font-bold text-xl mb-3 font-orbitron">Interests</h3>
                   <ul className="space-y-2 text-white/80">
-                    <li>• Creative Coding</li>
-                    <li>• Space & Astronomy</li>
-                    <li>• Generative Art</li>
-                    <li>• Game Development</li>
+                    <li>• AI/ML for Real-World Impact</li>
+                    <li>• Problem-Solving </li>
+                    <li>• Entrepreneurship </li>
+                    <li>• Scalable Systems Design </li>
                   </ul>
                 </div>
               </div>
